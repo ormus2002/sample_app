@@ -4,6 +4,8 @@ gem 'rails', '3.2.13'
 gem 'bootstrap-sass', '2.1'
 gem 'bcrypt-ruby', '3.0.1'
 
+gem 'newrelic_rpm'
+
 gem 'pg', '0.12.2' # PostgreSQL
 
 # Bundle edge Rails instead:
