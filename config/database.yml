@@ -15,7 +15,7 @@ development:
   password: 12345
   database: app-dev
 
-test:
+test: &test
   adapter: postgresql
   host: localhost
   username: postgres
@@ -43,3 +43,6 @@ production:
 #  database: db/production.sqlite3
 #  pool: 5
 #  timeout: 5000
+
+cucumber:
+  <<: *test
