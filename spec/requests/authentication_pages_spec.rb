@@ -29,6 +29,11 @@ describe "Authentication" do
 
       it { should have_selector('title', text: 'Вход') }
       it { should have_selector('div.alert.alert-error', text: 'Invalid') }
+      it { should_not have_link('Пользователи', href: users_path) }
+      it { should_not have_link('Профиль') }
+      it { should_not have_link('Настройки') }
+      it { should_not have_link('Выход',        href: signout_path) }
+      it { should have_link('Войти', href: signin_path) }
       
       describe "after visiting another page" do
         before { click_link "Начало" }
@@ -91,6 +96,20 @@ describe "Authentication" do
           it "should render the desired protected page" do
             page.should have_selector('title', text: 'Редактирование пользователя')
           end
+          
+          describe "when signing in again" do
+            before do
+              delete signout_path
+              visit signin_path
+              fill_in "Е-мейл",    with: user.email
+              fill_in "Пароль", with: user.password
+              click_button "Войти"
+            end
+
+            it "should render the default (profile) page" do
+              page.should have_selector('title', text: user.name)
+            end
+          end
         end
       end
     end
@@ -119,6 +138,22 @@ describe "Authentication" do
 
       describe "submitting a DELETE request to the Users#destroy action" do
         before { delete user_path(user) }
+        specify { response.should redirect_to(root_path) }
+      end
+    end
+    
+    describe "as signed user" do
+      let(:user) { FactoryGirl.create(:user) }
+      
+      before { sign_in user }
+
+      describe "submitting a GET request to the Users#new action" do
+        before { get new_user_path }
+        specify { response.should redirect_to(root_path) }
+      end
+      
+      describe "submitting a POST request to the Users#create action" do
+        before { post users_path }
         specify { response.should redirect_to(root_path) }
       end
     end
