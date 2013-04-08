@@ -74,7 +74,10 @@ describe "User pages" do
     let!(:m1) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
     let!(:m2) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
     
-    before { visit user_path(user) }
+    before do
+      sign_in user
+      visit user_path(user)
+    end
 
     it { should have_selector('h1',    text: user.name) }
     it { should have_selector('title', text: user.name) }
@@ -83,6 +86,32 @@ describe "User pages" do
       it { should have_content(m1.content) }
       it { should have_content(m2.content) }
       it { should have_content(user.microposts.count) }
+
+      it { should have_link('Удалить'), href: micropost_path(m1) }
+      
+      describe "delete links" do
+        let(:user2) { FactoryGirl.create(:user) }
+        before do
+          sign_in user2
+          visit user_path(user) 
+        end
+        it { should_not have_link('Удалить') }
+      end
+
+      describe "pagination" do
+
+        before(:all) { 35.times { FactoryGirl.create(:micropost, user: user) } }
+        after(:all)  { Micropost.delete_all }
+
+        it { should have_selector('div.pagination') }
+
+        it "should list each micropost" do
+          Micropost.paginate(page: 1).each do |micropost|
+            page.should have_selector('li', text: micropost.content)
+          end
+        end
+      end
+      
     end
   end
   
