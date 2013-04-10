@@ -1,6 +1,6 @@
 # -*- encoding : utf-8 -*-
 class UsersController < ApplicationController
-  before_filter :signed_in_user,  only: [:index, :edit, :update, :destroy]
+  before_filter :signed_in_user,  only: [:index, :edit, :update, :destroy, :following, :followers]
   before_filter :correct_user,    only: [:edit, :update]
   before_filter :admin_user,      only: :destroy
   before_filter :already_signed_in_user, only: [:new, :create]
@@ -46,6 +46,20 @@ class UsersController < ApplicationController
     User.find(params[:id]).destroy
     flash[:success] = "Пользователь удален."
     redirect_to users_url
+  end
+  
+  def following
+    @title = "Читаемые"
+    @user = User.find(params[:id])
+    @users = @user.followed_users.paginate(page: params[:page])
+    render 'show_follow'
+  end
+
+  def followers
+    @title = "Читатели"
+    @user = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
   end
   
   private

@@ -48,6 +48,18 @@ describe "Static pages" do
       it "should render count of user microposts" do
         page.should have_content(user.microposts.count.to_s + " microposts")
       end
+      
+      describe "follower/following counts" do
+        let(:other_user) { FactoryGirl.create(:user) }
+        before do
+          other_user.follow!(user)
+          visit root_path
+        end
+
+        it { should have_link("0 читаемых", href: following_user_path(user)) }
+        it { should have_link("1 читателей", href: followers_user_path(user)) }
+      end
+      
     end
   
   end
